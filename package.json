@@ -24,6 +24,7 @@
     "grunt-karma": "^0.9.0",
     "gulp": "^3.8.8",
     "gulp-karma": "0.0.4",
+    "gulp-uglifyjs": "^0.4.3",
     "karma": "^0.12.23",
     "karma-jasmine": "^0.1.5",
     "karma-mocha-reporter": "^0.3.1",

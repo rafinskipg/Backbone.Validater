@@ -14,10 +14,21 @@ module.exports = function(grunt) {
           reporters: ['mocha'],
           browsers: ['PhantomJS']
       }
+    },
+    uglify: {
+      dist: {
+        files: {
+          'dist/Backbone.Validater.min.js': ['app/**.js']
+        }
+      }
     }
   });
 
 
   grunt.registerTask('test', ['karma']);
+  grunt.registerTask('build', [
+    'test', 
+    'uglify'
+  ]);
 
 };
