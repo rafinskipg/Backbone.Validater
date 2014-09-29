@@ -1,5 +1,5 @@
 
-#Backbone validator [![Build Status](https://travis-ci.org/rafinskipg/Backbone.Validater.svg?branch=master)][travis] [![Code Climate](https://codeclimate.com/github/rafinskipg/Backbone.Validater/badges/gpa.svg)](https://codeclimate.com/github/rafinskipg/Backbone.Validater)
+#Backbone validator [![Build Status](https://travis-ci.org/rafinskipg/Backbone.Validater.svg?branch=master)](https://travis-ci.org/rafinskipg/Backbone.Validater) [![Code Climate](https://codeclimate.com/github/rafinskipg/Backbone.Validater/badges/gpa.svg)](https://codeclimate.com/github/rafinskipg/Backbone.Validater)
 
 
 
