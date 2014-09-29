@@ -1,0 +1,29 @@
+{
+  "name": "backboneModelValidation",
+  "version": "0.0.0",
+  "authors": [
+    "Rafael Pedrola <rafinskipg@gmail.com>"
+  ],
+  "description": "Backbone model validation through class creation",
+  "main": "backbone.validator.js",
+  "moduleType": [
+    "amd"
+  ],
+  "keywords": [
+    "backbone",
+    "validator"
+  ],
+  "license": "MIT",
+  "homepage": "rvpg.me",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "devDependencies": {
+    "jquery": "~2.1.1",
+    "backbone": "~1.1.2"
+  }
+}
