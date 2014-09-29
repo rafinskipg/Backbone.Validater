@@ -1,11 +1,11 @@
 {
-  "name": "backboneModelValidation",
+  "name": "Backbone.Validater",
   "version": "0.0.0",
   "authors": [
     "Rafael Pedrola <rafinskipg@gmail.com>"
   ],
   "description": "Backbone model validation through class creation",
-  "main": "backbone.validator.js",
+  "main": "dist/Backbone.Validater.js",
   "moduleType": [
     "amd"
   ],
