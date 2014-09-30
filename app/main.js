@@ -51,7 +51,10 @@
         for(var n in this.model.requiredFields) {
           var propName = this.model.requiredFields[n];
           if(!this.hasContent(obj[propName])){
-            fails.push(propName);
+            fails.push({
+              field: propName,
+              validation: 'required'
+            });
           }
         }
         return fails.length > 0 ? fails : null;

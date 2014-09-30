@@ -31,6 +31,8 @@ describe("Backbone validator", function() {
       myObj.set('phone', '');
       var issues = myObj.validate();
       expect(issues.length).toBe(1);
+      expect(issues[0].field).toBe('phone');
+      expect(issues[0].validation).toBe('required');
     });
 
   });
