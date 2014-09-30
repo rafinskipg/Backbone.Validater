@@ -122,7 +122,8 @@
         return conditions;
       },
       validate: function(){
-        return _.compact(Array.prototype.concat(this.checkRequiredFields(), this.customValidations()));
+        var issues = _.compact(Array.prototype.concat(this.checkRequiredFields(), this.customValidations()));
+        return issues.length > 0 ? issues  : null
       }
     });
 

@@ -212,7 +212,7 @@ describe("Backbone validator", function() {
       myObj.set('street', '');
       myObj.set('phone', '');
       var issues = validator.validate();
-      expect(issues.length).toBe(0);
+      expect(issues).toBe(null);
     });
     
 
@@ -291,6 +291,15 @@ describe("Backbone validator", function() {
       expect(issues[1].validation).toBe('streetIsValid');
       expect(issues[2].field).toBe('phone');
       expect(issues[2].validation).toBe('phoneIsValid');
+    });
+
+    it('should return null if validates', function(){
+      myObj.set('name', 'as');
+      myObj.set('street', 'as');
+      var issues = validator.validate();
+   
+      expect(issues).toBe(null);
+      
     });
     
 
