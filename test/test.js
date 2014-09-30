@@ -305,6 +305,17 @@ describe("Backbone validator", function() {
     });
     
 
+    it('should add the required field validations', function(){
+      myObj.set('name', 'default');
+      myObj.set('street', 'madrid');
+      myObj.requiredFields = ['street', 'phone'];
+      var issues = validator.validate();
+
+      expect(issues.length).toBe(3);
+      
+    });
+    
+
   });
 
   
