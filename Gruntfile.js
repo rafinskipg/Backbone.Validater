@@ -21,10 +21,21 @@ module.exports = function(grunt) {
           'dist/Backbone.Validater.min.js': ['app/**.js']
         }
       }
+    },
+    watch: {
+      test: {
+        files: ['test/*.js'],
+        tasks: ['test']
+      },
+      main: {
+        files: ['app/*.js'],
+        tasks: ['test']
+      }
     }
   });
 
 
+  grunt.registerTask('devtest', ['watch']);
   grunt.registerTask('test', ['karma']);
   grunt.registerTask('build', [
     'test', 

@@ -68,14 +68,18 @@
           
           conditionsFulfilled.forEach(function(condition){
             var arguments = condition.fields.map(function(field){
-              return self.model.get(field);
+              if(!field.filters){
+                return self.model.get(field.name);
+              }else{
+                return self.getFilteredValuesFromField(field);
+              }
             });
 
             if(!self[condition.validation].apply(self, arguments)){
               condition.fields.forEach(function(field){
                 issues.push({
-                  field: field,
-                  validation: condition.validation
+                  field: field.name,
+                  validation: condition.alias || condition.validation
                 })
               });
             }
@@ -91,21 +95,12 @@
 
         conditions = _.compact(conditions.map(function(condition){
           var valid = true;
-          condition.fields = condition.fields.map(function(field){
-            if(field.indexOf('!') != 0){
-              //It requests to have a field set with value
-              if(!self.model.get(field) || !self.hasContent(self.model.get(field)) ){
-                valid = false;
-              }  
-            }else{
-              //It requests to have a field empty
-              field = field.replace('!', '');
-              if(self.model.get(field) && self.hasContent(self.model.get(field)) ){
-                valid = false;
-              }
+          condition.fields.forEach(function(field){
+            if(!self.fieldFulfillsCondition(field)){
+              valid = false;
             }
-            return field;
           });
+
           if(valid){
             return condition;
           }
@@ -113,17 +108,112 @@
 
         return conditions;
       },
+      fieldFulfillsCondition: function(field){
+        var valid = true;
+        if(field.exists){
+          //It requests to have a field set with value
+          if(!this.model.get(field.name) || !this.hasContent(this.model.get(field.name)) ){
+            valid = false;
+          }else if(field.filters && field.filters.length > 0){
+            var foundValuesFiltered = this.getFilteredValuesFromField(field);
+            if(!foundValuesFiltered.length > 0){
+              valid = false;
+            }
+          } 
+        }else{
+          //It requests to have a field empty
+          if(this.model.get(field.name) && this.hasContent(this.model.get(field.name)) ){
+            valid = false;
+          }
+        }
+        return valid;
+      },
+      getFilteredValuesFromField: function(field){
+        return _.filter(this.model.get(field.name), function(val){ 
+            var valid = true;
+            field.filters.forEach(function(filter){
+              if(!val[filter.field] || val[filter.field] != filter.value ){
+                valid = false;
+              }
+            });
+            return valid;
+          });
+      },
       extractConditionsFromBindings: function(){
         var conditions = [];
+        var self = this;
         for(var validation in this.validations){
           var condition = {};
-          var fields = validation.split('&');
+          var fieldsString = validation;
+          //Extract aliases
+          var alias = this.getAliasFromConditionString(validation);
+          if(alias.length > 0){
+            fieldsString = validation.replace(alias+':', '');
+            condition.alias = alias;
+          }
+
+          //Extract fields
+          var fields = this.getFieldsFromFieldsString(fieldsString);
           condition.fields = fields;
+
+          //Get field filters
+          condition.fields = condition.fields.map(function(field){
+            var filters = self.getFiltersFromField(field.name);
+            if(filters){
+              field.filters = filters;
+              field.name = self.removeFiltersStringFromField(field.name);
+            }
+            return field;
+          })
+
+
           condition.validation = this.validations[validation];
           conditions.push(condition);
         }
         return conditions;
       },
+      getAliasFromConditionString: function(conditionString){
+        var index = conditionString.indexOf(':');
+        if(index != -1){
+          return conditionString.substr(0,index);
+        }
+        return '';
+      },
+      getFieldsFromFieldsString: function(fieldsString){
+        return fieldsString.split('&').map(function(field){
+          var exists = field.indexOf('!') == -1;
+          field = field.replace('!', '');
+          return {
+            name: field,
+            exists: exists
+          }
+        });
+      },
+      removeFiltersStringFromField: function(field){
+        var re = /{([^}]*)}/;
+        var match = re.exec(field)[0];
+        return field.replace(match, '');
+      },
+      getFiltersFromField: function(field){
+        var re = /{([^}]*)}/;
+        if(re.test(field)){
+          var match = re.exec(field)[1];
+          var fields = this.getFieldsFromFieldsString(match);
+          fields = fields.map(function(fieldObject){
+            var indexOfEqual = fieldObject.name.indexOf('=');
+            var fieldName = fieldObject.name.substr(0, indexOfEqual);
+            var fieldValue = fieldObject.name.substr(indexOfEqual+1,fieldObject.name.length).replace(/\"/g,'');
+            return {
+              field: fieldName,
+              value: fieldValue
+            }
+          });
+          return fields;
+        }else{
+          return null;
+        }
+      },
+
       validate: function(){
         var issues = _.compact(Array.prototype.concat(this.checkRequiredFields(), this.customValidations()));
         return issues.length > 0 ? issues  : null

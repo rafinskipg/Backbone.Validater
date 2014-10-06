@@ -53,7 +53,7 @@ describe("Backbone validator", function() {
 
       expect(conditions).toExist;
       expect(conditions.length).toBe(1);
-      expect(conditions[0].fields[0]).toBe('name');
+      expect(conditions[0].fields[0].name).toBe('name');
     });
 
     it('should bind the function to the field', function(){
@@ -77,8 +77,10 @@ describe("Backbone validator", function() {
 
       expect(conditions).toExist;
       expect(conditions.length).toBe(1);
-      expect(conditions[0].fields[0]).toBe('name');
-      expect(conditions[0].fields[1]).toBe('street');
+      expect(conditions[0].fields[0].name).toBe('name');
+      expect(conditions[0].fields[0].exists).toBe(true);
+      expect(conditions[0].fields[1].name).toBe('street');
+      expect(conditions[0].fields[1].exists).toBe(true);
 
     });
 
