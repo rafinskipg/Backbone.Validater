@@ -2,7 +2,7 @@ describe("Backbone validator", function() {
 
 
   it("Should be defined", function() {
-    expect(Backbone.validator).toExist;
+    expect(Backbone.validator).toBeDefined();
   });
 
   describe("Required fields", function(){
@@ -51,7 +51,7 @@ describe("Backbone validator", function() {
 
       var conditions = validator.extractConditionsFromBindings();
 
-      expect(conditions).toExist;
+      expect(conditions).toBeDefined();
       expect(conditions.length).toBe(1);
       expect(conditions[0].fields[0].name).toBe('name');
     });
@@ -63,7 +63,7 @@ describe("Backbone validator", function() {
 
       var conditions = validator.extractConditionsFromBindings();
 
-      expect(conditions).toExist;
+      expect(conditions).toBeDefined();
       expect(conditions.length).toBe(1);
       expect(conditions[0].validation).toBe('relevant');
     });
@@ -75,7 +75,7 @@ describe("Backbone validator", function() {
 
       var conditions = validator.extractConditionsFromBindings();
 
-      expect(conditions).toExist;
+      expect(conditions).toBeDefined();
       expect(conditions.length).toBe(1);
       expect(conditions[0].fields[0].name).toBe('name');
       expect(conditions[0].fields[0].exists).toBe(true);
@@ -83,6 +83,26 @@ describe("Backbone validator", function() {
       expect(conditions[0].fields[1].exists).toBe(true);
 
     });
+
+    it('should not split filters', function(){
+      validator.validations = {
+        'name&street{subfield="sand"&other="meh"}': 'irrelevant'
+      }
+
+
+      var conditions = validator.extractConditionsFromBindings();
+
+      expect(conditions).toBeDefined();
+      expect(conditions.length).toBe(1);
+      expect(conditions[0].fields[0].name).toBe('name');
+      expect(conditions[0].fields[0].exists).toBe(true);
+      expect(conditions[0].fields[1].name).toBe('street');
+      expect(conditions[0].fields[1].filters).toBeDefined();
+      expect(conditions[0].fields[1].filters.length).toBe(2);
+      expect(conditions[0].fields[1].exists).toBe(true);
+
+    });
+
 
     //TODO: Implement OR condition and nested conditions
 
@@ -181,6 +201,8 @@ describe("Backbone validator", function() {
 
       expect(conditions.length).toBe(3);
     });
+
+
   });
 
 

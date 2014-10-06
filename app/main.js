@@ -180,7 +180,7 @@
         return '';
       },
       getFieldsFromFieldsString: function(fieldsString){
-        return fieldsString.split('&').map(function(field){
+        return fieldsString.match(/[^&]+(?=\{)\{\S+\}|[^&]+/g).map(function(field){
           var exists = field.indexOf('!') == -1;
           field = field.replace('!', '');
           return {
