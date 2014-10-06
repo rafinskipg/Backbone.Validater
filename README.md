@@ -19,16 +19,17 @@ var MyValidator = Backbone.validator.extend({
     return true;
   }
 });
+````
+````
 
 var myModel = Backbone.Model.extend({
-  initialize: function(){
+  requiredFields: ['name', 'street', 'phone'], //All fields will be checked to not be empty, it also does a deep check in objects and arrays
+  validate: function(){
     this.validator = new MyValidator({
       model: this
     });
-  },
-  requiredFields: ['name', 'street', 'phone'], //All fields will be checked to not be empty, it also does a deep check in objects and arrays
-  validate: function(){
-    return this.validator.validate(); //Returns null if everything goes well, an array of erros if some field validations fail
+    return this.validator.validate(); //Returns null if everything goes well, 
+                                      //an array of erros if some field validations fail
   }
 });
 ````
