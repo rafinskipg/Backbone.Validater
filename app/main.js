@@ -116,7 +116,7 @@
             valid = false;
           }else if(field.filters && field.filters.length > 0){
             var foundValuesFiltered = this.getFilteredValuesFromField(field);
-            if(!foundValuesFiltered.length > 0){
+            if(!this.hasContent(foundValuesFiltered)){
               valid = false;
             }
           } 
@@ -129,15 +129,33 @@
         return valid;
       },
       getFilteredValuesFromField: function(field){
+        if(_.isArray(this.model.get(field.name))){
+          return this.filterArrayValues(field);
+        }else{
+          return this.filterObjectValues(field);
+        }
+      },
+      filterArrayValues: function(field){
         return _.filter(this.model.get(field.name), function(val){ 
             var valid = true;
             field.filters.forEach(function(filter){
-              if(!val[filter.field] || val[filter.field] != filter.value ){
+              if(!val[filter.field] || (filter.value && val[filter.field] != filter.value )){
                 valid = false;
               }
             });
             return valid;
           });
+      },
+      filterObjectValues: function(field){
+        var fieldData = this.model.get(field.name);
+        var valid = true;
+
+        field.filters.forEach(function(filter){
+          if(!fieldData[filter.field] || (filter.value && fieldData[filter.field] != filter.value )){
+            valid = false;
+          }
+        });
+        return valid ? fieldData : null;
       },
       extractConditionsFromBindings: function(){
         var conditions = [];
@@ -200,13 +218,17 @@
           var match = re.exec(field)[1];
           var fields = this.getFieldsFromFieldsString(match);
           fields = fields.map(function(fieldObject){
-            var indexOfEqual = fieldObject.name.indexOf('=');
-            var fieldName = fieldObject.name.substr(0, indexOfEqual);
-            var fieldValue = fieldObject.name.substr(indexOfEqual+1,fieldObject.name.length).replace(/\"/g,'');
-            return {
-              field: fieldName,
-              value: fieldValue
+            var returningObject = {
+              field : fieldObject.name
             }
+            
+            var indexOfEqual = fieldObject.name.indexOf('=');
+            if(indexOfEqual != -1){
+              returningObject.field = fieldObject.name.substr(0, indexOfEqual);
+              returningObject.value = fieldObject.name.substr(indexOfEqual+1,fieldObject.name.length).replace(/\"/g,'');
+            }  
+
+            return returningObject;
           });
           return fields;
         }else{
