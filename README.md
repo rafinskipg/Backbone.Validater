@@ -100,6 +100,22 @@ checkOneField: function(fieldValueFiltered){
 **/
 ```
 
+## Object filtering
+Trigger validation if object has some properties (optionally set to some values )
+
+```
+validations: {
+  'myObjectField{objectProperty="value"&otherObjectProperty&!thirdObjectProperty}': 'checkOneField'
+},
+
+checkOneField: function(myObjectField){
+  //...
+}
+
+/** It will trigger the validation if the object match the conditions
+**/
+```
+
 ## More examples
 
 ````
@@ -110,6 +126,8 @@ validations: {
   '!missingField': 'checkConditionWhenFieldMissing',
   'arrayField{name="pepe"}': 'conditionIfNameIsPepe',
   'namePepeFound:arrayField{name="pepe"}': 'conditionIfNameIsPepe',
+  'objectField{name="pepe"}': 'conditionIfNameIsPepe',
+  'objectField{name&surname}': 'conditionIfObjectHasNameAndSurname',
 }
 ````
 
