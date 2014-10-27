@@ -151,7 +151,6 @@
         var valid = true;
 
         field.filters.forEach(function(filter){
-          console.log(filter)
           if(!fieldData[filter.field] || (filter.value && (fieldData[filter.field] != filter.value) )){
             valid = false;
           }
