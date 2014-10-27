@@ -185,8 +185,19 @@
           })
 
 
-          condition.validation = this.validations[validation];
-          conditions.push(condition);
+          var validations = this.validations[validation];
+          
+          if(typeof(validations) == 'string'){
+            condition.validation = validations;
+            conditions.push(condition);
+          }else{
+
+            validations.forEach(function(val){
+              var cond = _.clone(condition);
+              cond.validation = val;
+              conditions.push(cond);
+            });
+          }
         }
         return conditions;
       },
