@@ -139,7 +139,7 @@
         return _.filter(this.model.get(field.name), function(val){ 
             var valid = true;
             field.filters.forEach(function(filter){
-              if(!val[filter.field] || (filter.value && val[filter.field] != filter.value )){
+              if(!val[filter.field] || (filter.value && (val[filter.field] != filter.value) )){
                 valid = false;
               }
             });
@@ -151,7 +151,8 @@
         var valid = true;
 
         field.filters.forEach(function(filter){
-          if(!fieldData[filter.field] || (filter.value && fieldData[filter.field] != filter.value )){
+          console.log(filter)
+          if(!fieldData[filter.field] || (filter.value && (fieldData[filter.field] != filter.value) )){
             valid = false;
           }
         });

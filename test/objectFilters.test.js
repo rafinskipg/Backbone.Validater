@@ -246,4 +246,69 @@ describe("Filtering objects", function() {
 
   });
 
+  describe("Without specifying a value, filter if it is fulfilled", function(){
+    var myObj;
+    //Some model using our validator
+    var validator;
+
+    beforeEach(function(){
+      //Create a model with some stuff
+      myObj = new Backbone.Model({});
+
+      var CustomValidator = Backbone.validator.extend({
+        validations: {
+          'phone{number&name}': 'validateWhenNumberAndName'
+        },
+        validateWhenNumberAndName: function(val){
+         
+        }
+      });
+
+      validator = new CustomValidator({
+        model: myObj
+      });
+    });
+
+    it('should not trigger the validation if the field is not present', function(){
+      myObj.set('phone', {
+        number: '1234'
+      });
+
+      var conditionsFulfilled = validator.getConditionsFulfilled();
+      expect(conditionsFulfilled.length).toBe(0);
+
+      var phoneValidatorFunction = sinon.stub(validator, 'validateWhenNumberAndName', function(){});
+      validator.validate();
+      expect(phoneValidatorFunction.callCount).toBe(0);
+    });
+
+    it('should trigger the validation if the field is present ', function(){
+      myObj.set('phone', {
+        number: '1234',
+        name: 'pepe'
+      });
+
+      var conditionsFulfilled = validator.getConditionsFulfilled();
+      expect(conditionsFulfilled.length).toBe(1);
+
+      var phoneValidatorFunction = sinon.stub(validator, 'validateWhenNumberAndName', function(){});
+      validator.validate();
+      expect(phoneValidatorFunction.callCount).toBe(1);
+    });
+
+    it('should not trigger the validation if the field is present but empty', function(){
+      myObj.set('phone', {
+        number: '',
+        name: 'pepe'
+      });
+      var conditionsFulfilled = validator.getConditionsFulfilled();
+      expect(conditionsFulfilled.length).toBe(0);
+
+      var phoneValidatorFunction = sinon.stub(validator, 'validateWhenNumberAndName', function(){});
+      validator.validate();
+      expect(phoneValidatorFunction.callCount).toBe(0);
+    });
+    
+  });
+
 });
