@@ -309,6 +309,23 @@ describe("Filtering objects", function() {
       expect(phoneValidatorFunction.callCount).toBe(0);
     });
     
+
+    it('should not trigger the validation if the field is present but NESTED empty', function(){
+      myObj.set('phone', {
+        number: {
+          min: '',
+          max: ''
+        },
+        name: 'pepe'
+      });
+      var conditionsFulfilled = validator.getConditionsFulfilled();
+      expect(conditionsFulfilled.length).toBe(0);
+
+      var phoneValidatorFunction = sinon.stub(validator, 'validateWhenNumberAndName', function(){});
+      validator.validate();
+      expect(phoneValidatorFunction.callCount).toBe(0);
+    });
+    
   });
 
 });

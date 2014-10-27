@@ -136,10 +136,14 @@
         }
       },
       filterArrayValues: function(field){
+        var self = this;
         return _.filter(this.model.get(field.name), function(val){ 
             var valid = true;
             field.filters.forEach(function(filter){
-              if(!val[filter.field] || (filter.value && (val[filter.field] != filter.value) )){
+              var value = val[filter.field];
+              if(!value 
+                || (filter.value && (value != filter.value) )
+                || (!filter.value && !self.hasContent(value))){
                 valid = false;
               }
             });
@@ -149,9 +153,13 @@
       filterObjectValues: function(field){
         var fieldData = this.model.get(field.name);
         var valid = true;
+        var self = this;
 
         field.filters.forEach(function(filter){
-          if(!fieldData[filter.field] || (filter.value && (fieldData[filter.field] != filter.value) )){
+          var value = fieldData[filter.field];
+          if(!value 
+            || (filter.value && (value != filter.value) )
+            || (!filter.value && !self.hasContent(value))){
             valid = false;
           }
         });
