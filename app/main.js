@@ -74,12 +74,12 @@
                 return self.getFilteredValuesFromField(field);
               }
             });
-
-            if(!self[condition.validation].apply(self, arguments)){
+            var resultOfValidation = self[condition.validation].apply(self, arguments);
+            if(resultOfValidation == false || typeof(resultOfValidation) == 'string'){
               condition.fields.forEach(function(field){
                 issues.push({
-                  field: field.name,
-                  validation: condition.alias || condition.validation
+                  field: condition.alias || field.name,
+                  validation: typeof(resultOfValidation) == 'string'? resultOfValidation : condition.validation
                 })
               });
             }
@@ -133,12 +133,9 @@
         }else{
           //It requests to have a field empty
           if(this.model.get(field.name) && this.hasContent(this.model.get(field.name)) && !field.filters){
-            //console.log('has  ontent and no want',this.hasContent(this.getFieldValue(field.nested, this.model.get(field.name))) )
-            //console.log('has  ontent and no want',this.hasContent(this.getFieldValue(field.nested, this.model.get(field.name))) )
             valid = false;
           }else if(field.filters && field.filters.length > 0){
             var foundValuesFiltered = this.getFilteredValuesFromField(field);
-            console.log(foundValuesFiltered)
             if(this.hasContent(foundValuesFiltered)){
               valid = false;
             }

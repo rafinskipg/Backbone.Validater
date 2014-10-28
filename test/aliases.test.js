@@ -37,7 +37,8 @@ describe("Validator condition aliases", function() {
       myObj.set('phone', '-1');
       myObj.set('age', 'a');
       var issues = validator.validate();
-      expect(issues[0].validation).toBe('phoneHasToBeInteger');
+      expect(issues[0].field).toBe('phoneHasToBeInteger');
+      expect(issues[0].validation).toBe('integerPositive');
     });
 
   });

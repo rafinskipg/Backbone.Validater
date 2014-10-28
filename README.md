@@ -64,7 +64,7 @@ checkConditionsWhenTwoFieldsPresent: function(fieldOne, fieldTwo){
 
 ```
 validations: {
-  'myIssueAlias:oneField': 'checkOneField'
+  'myFieldAlias:oneField': 'checkOneField'
 },
 
 checkOneField: function(fieldValue){
@@ -73,8 +73,30 @@ checkOneField: function(fieldValue){
 
 /** In case of error it will return 
   [{ 
+    field : 'myFieldAlias', 
+    validation : 'checkOneField'
+  }]
+**/
+```
+
+## Return custom error
+
+```
+validations: {
+  'oneField': 'checkOneField'
+},
+
+checkOneField: function(fieldValue){
+  if(fails){
+    return 'My custom error here';
+  }
+  return true;
+}
+
+/** In case of error it will return 
+  [{ 
     field : 'oneField', 
-    validation : 'myIssueAlias'
+    validation : ''My custom error here''
   }]
 **/
 ```
@@ -128,6 +150,7 @@ validations: {
   'namePepeFound:arrayField{name="pepe"}': 'conditionIfNameIsPepe',
   'objectField{name="pepe"}': 'conditionIfNameIsPepe',
   'objectField{name&surname}': 'conditionIfObjectHasNameAndSurname',
+  'objectField{nestedProperty.subNested.subsubNested="true"}'
 }
 ````
 
@@ -137,7 +160,7 @@ validations: {
 - `|` OR operator //NOT IMPLEMENTED
 - `!` indicates that a field is missing 
 - `{}` for containing filters for arrays
-- `aliasName:` for indicating aliases, must be placed at the beggining of the string
+- `aliasName:` for indicating aliases, must be placed at the beggining of the string, acts as an alias for the field
 
 ##Contribute
 
