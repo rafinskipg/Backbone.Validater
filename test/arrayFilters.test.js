@@ -31,12 +31,14 @@ describe("Filtering", function() {
         name: 'goals',
         filters: [
           {
-            field: 'name',
-            value: 'pepe'
+            name: 'name',
+            value: 'pepe',
+            exists: true
           },
           {
-            field: 'budget',
-            value: 'daily'
+            name: 'budget',
+            value: 'daily',
+            exists: true
           }
         ]
       });
@@ -76,14 +78,14 @@ describe("Filtering", function() {
     it('should extract filters from field', function(){
       var filters = validator.getFiltersFromField('fieldName{filterOne="valueFilter"&filterTwo="valueFilter2"}');
       expect(filters.length).toBe(2);
-      expect(filters[0].field).toBe('filterOne');
-      expect(filters[1].field).toBe('filterTwo');
+      expect(filters[0].name).toBe('filterOne');
+      expect(filters[1].name).toBe('filterTwo');
       expect(filters[0].value).toBe('valueFilter');
       expect(filters[1].value).toBe('valueFilter2'); 
 
       var filters2 = validator.getFiltersFromField('phones{number="1234"}');
       expect(filters2.length).toBe(1);
-      expect(filters2[0].field).toBe('number');
+      expect(filters2[0].name).toBe('number');
       expect(filters2[0].value).toBe('1234');
 
     });
@@ -92,14 +94,14 @@ describe("Filtering", function() {
     it('should extract empty filters from field', function(){
       var filters = validator.getFiltersFromField('fieldName{filterOne&filterTwo}');
       expect(filters.length).toBe(2);
-      expect(filters[0].field).toBe('filterOne');
-      expect(filters[1].field).toBe('filterTwo');
+      expect(filters[0].name).toBe('filterOne');
+      expect(filters[1].name).toBe('filterTwo');
       expect(filters[0].value).toBe(undefined);
       expect(filters[1].value).toBe(undefined);
 
       var filters2 = validator.getFiltersFromField('fieldName{filterOne}');
       expect(filters2.length).toBe(1);
-      expect(filters2[0].field).toBe('filterOne');
+      expect(filters2[0].name).toBe('filterOne');
       expect(filters2[0].value).toBe(undefined);
     });
 

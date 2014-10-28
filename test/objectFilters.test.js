@@ -33,8 +33,9 @@ describe("Filtering objects", function() {
         name: 'party',
         filters: [
           {
-            field: 'music',
-            value: 'fandango'
+            name: 'music',
+            value: 'fandango',
+            exists: true
           }
         ]
       });
@@ -48,8 +49,9 @@ describe("Filtering objects", function() {
         name: 'party',
         filters: [
           {
-            field: 'music',
-            value: 'sardina'
+            name: 'music',
+            value: 'sardina',
+            exists: true
           }
         ]
       });
@@ -62,7 +64,8 @@ describe("Filtering objects", function() {
         name: 'party',
         filters: [
           {
-            field: 'music'
+            name: 'music',
+            exists: true
           }
         ]
       });
@@ -76,7 +79,8 @@ describe("Filtering objects", function() {
         name: 'party',
         filters: [
           {
-            field: 'pepino'
+            name: 'pepino',
+            exists: true
           }
         ]
       });
@@ -112,15 +116,15 @@ describe("Filtering objects", function() {
     it('should extract filters from field', function(){
       var filters = validator.getFiltersFromField('fieldName{filterOne="valueFilter"&filterTwo="valueFilter2"}');
       expect(filters.length).toBe(2);
-      expect(filters[0].field).toBe('filterOne');
-      expect(filters[1].field).toBe('filterTwo');
+      expect(filters[0].name).toBe('filterOne');
+      expect(filters[1].name).toBe('filterTwo');
       expect(filters[0].value).toBe('valueFilter');
       expect(filters[1].value).toBe('valueFilter2'); 
 
       var filters2 = validator.getFiltersFromField('phones{number&name="pepe"}');
       expect(filters2.length).toBe(2);
-      expect(filters2[0].field).toBe('number');
-      expect(filters2[1].field).toBe('name');
+      expect(filters2[0].name).toBe('number');
+      expect(filters2[1].name).toBe('name');
       expect(filters2[0].value).not.toBeDefined();
       expect(filters2[1].value).toBe('pepe');
     });

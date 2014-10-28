@@ -110,11 +110,21 @@
       },
       fieldFulfillsCondition: function(field){
         var valid = true;
+        var self = this;
         if(field.exists){
           //It requests to have a field set with value
           if(!this.model.get(field.name) || !this.hasContent(this.model.get(field.name)) ){
             valid = false;
           }else if(field.filters && field.filters.length > 0){
+
+            /*field.filters.forEach(function(filter){
+              var hasContentOnTheFilter = self.hasContent(self.getFieldValue(filter, self.model.get(field.name)));
+              if(!filter.exists && hasContentOnTheFilter ){
+                valid = false;
+              }else if(filter.exists && !hasContentOnTheFilter){
+                valid = false;
+              }
+            });*/
             var foundValuesFiltered = this.getFilteredValuesFromField(field);
             if(!this.hasContent(foundValuesFiltered)){
               valid = false;
@@ -122,9 +132,17 @@
           } 
         }else{
           //It requests to have a field empty
-          if(this.model.get(field.name) && this.hasContent(this.model.get(field.name)) ){
+          if(this.model.get(field.name) && this.hasContent(this.model.get(field.name)) && !field.filters){
+            //console.log('has  ontent and no want',this.hasContent(this.getFieldValue(field.nested, this.model.get(field.name))) )
+            //console.log('has  ontent and no want',this.hasContent(this.getFieldValue(field.nested, this.model.get(field.name))) )
             valid = false;
-          }
+          }else if(field.filters && field.filters.length > 0){
+            var foundValuesFiltered = this.getFilteredValuesFromField(field);
+            console.log(foundValuesFiltered)
+            if(this.hasContent(foundValuesFiltered)){
+              valid = false;
+            }
+          } 
         }
         return valid;
       },
@@ -137,15 +155,24 @@
       },
       filterArrayValues: function(field){
         var self = this;
-        return _.filter(this.model.get(field.name), function(val){ 
+
+        return _.filter(this.model.get(field.name), function(fieldData){ 
             var valid = true;
             field.filters.forEach(function(filter){
-              var value = val[filter.field];
-              if(!value 
-                || (filter.value && (value != filter.value) )
-                || (!filter.value && !self.hasContent(value))){
-                valid = false;
+              var value = self.getFieldValue(filter, fieldData);
+              if(filter.exists){
+                if(!value
+                  || (filter.value && (value != filter.value) )
+                  || (!filter.value && !self.hasContent(value))){
+
+                  valid = false;
+                }
+              }else{
+                if(value){
+                  valid = false;
+                }
               }
+              
             });
             return valid;
           });
@@ -156,14 +183,35 @@
         var self = this;
 
         field.filters.forEach(function(filter){
-          var value = fieldData[filter.field];
-          if(!value 
-            || (filter.value && (value != filter.value) )
-            || (!filter.value && !self.hasContent(value))){
-            valid = false;
+          var value = self.getFieldValue(filter, fieldData);
+          if(filter.exists){
+            if(!value
+              || (filter.value && (value != filter.value) )
+              || (!filter.value && !self.hasContent(value))){
+
+              valid = false;
+            }
+          }else{
+            if(value){
+              valid = false;
+            }
           }
         });
         return valid ? fieldData : null;
+      },
+      //Gets the value of the field, searching for it deep nested
+      getFieldValue: function(filter, fieldData){
+        var getValue = function(field, acc){
+          if(!acc || !acc[field.name]){
+            return null;
+          }else if(field.nested && acc[field.name]){
+            return getValue(field.nested , acc[field.name])
+          }else{
+            return acc[field.name];
+          }
+        }
+
+        return getValue(filter, fieldData);
       },
       extractConditionsFromBindings: function(){
         var conditions = [];
@@ -179,19 +227,7 @@
           }
 
           //Extract fields
-          var fields = this.getFieldsFromFieldsString(fieldsString);
-          condition.fields = fields;
-
-          //Get field filters
-          condition.fields = condition.fields.map(function(field){
-            var filters = self.getFiltersFromField(field.name);
-            if(filters){
-              field.filters = filters;
-              field.name = self.removeFiltersStringFromField(field.name);
-            }
-            return field;
-          })
-
+          condition.fields = this.getFieldsFromFieldsString(fieldsString);
 
           var validations = this.validations[validation];
           
@@ -216,39 +252,85 @@
         }
         return '';
       },
+
+
       getFieldsFromFieldsString: function(fieldsString){
+        var self = this;
+
         return fieldsString.match(/[^&]+(?=\{)\{\S+\}|[^&]+/g).map(function(field){
-          var exists = field.indexOf('!') == -1;
-          field = field.replace('!', '');
-          return {
-            name: field,
-            exists: exists
+          
+          var fieldStructure = {
+            name: field
+          };
+
+          self.appendFiltersInfo(fieldStructure);
+
+          var exists = fieldStructure.name.indexOf('!') == -1;
+          fieldStructure.name = fieldStructure.name.replace('!', '');
+          fieldStructure.exists = exists;
+
+
+          if(fieldStructure.name.indexOf('.') != -1){
+            //Has nested fields, apply transformation
+            var fields = fieldStructure.name.split('.');
+
+            //Recursive function for composing nested fields hyerarchy
+            var composeNestedFieldsObject = function(fields, acc){
+              var remaining = fields.splice(1);
+              acc.name = fields[0];
+              
+              if(remaining.length == 0){
+
+              var indexOfEqual = acc.name.indexOf('=');
+              if(indexOfEqual != -1){
+                var returningName = acc.name.substr(0, indexOfEqual);
+                fieldStructure.value = acc.name.substr(indexOfEqual+1,acc.name.length).replace(/\"/g,'');
+                acc.name = returningName;
+              }  
+                return acc;
+              }else{
+                acc.nested = composeNestedFieldsObject(remaining, {});
+                return acc;
+              }
+            }
+
+            composeNestedFieldsObject(fields, fieldStructure);
+          }else{
+            var indexOfEqual = fieldStructure.name.indexOf('=');
+            if(indexOfEqual != -1){
+              var returningName = fieldStructure.name.substr(0, indexOfEqual);
+              fieldStructure.value = fieldStructure.name.substr(indexOfEqual+1,fieldStructure.name.length).replace(/\"/g,'');
+              fieldStructure.name = returningName;
+            }  
           }
+
+
+          return fieldStructure;
         });
       },
+
+      //Clean the filters ex:'field{filter=xxx}'' info from a field
       removeFiltersStringFromField: function(field){
         var re = /{([^}]*)}/;
         var match = re.exec(field)[0];
         return field.replace(match, '');
       },
+
+      appendFiltersInfo: function(obj){
+        var filters = this.getFiltersFromField(obj.name);
+        if(filters){
+          obj.filters = filters;
+          obj.name = this.removeFiltersStringFromField(obj.name);
+        }
+      },
+
+      //Returns an array of fields that Compose a filter ex:'field{filter=xxx}''
       getFiltersFromField: function(field){
         var re = /{([^}]*)}/;
+        
         if(re.test(field)){
           var match = re.exec(field)[1];
           var fields = this.getFieldsFromFieldsString(match);
-          fields = fields.map(function(fieldObject){
-            var returningObject = {
-              field : fieldObject.name
-            }
-            
-            var indexOfEqual = fieldObject.name.indexOf('=');
-            if(indexOfEqual != -1){
-              returningObject.field = fieldObject.name.substr(0, indexOfEqual);
-              returningObject.value = fieldObject.name.substr(indexOfEqual+1,fieldObject.name.length).replace(/\"/g,'');
-            }  
-
-            return returningObject;
-          });
           return fields;
         }else{
           return null;
